@@ -1,0 +1,50 @@
+######
+#$########
+#######
+hist(price,breaks=50,prob=T)
+lines(density(price),col='blue')
+qqnorm(price)
+qqline(price)
+###画qq图
+set.seed(1110)
+s<- sample(price,50)
+stem(s)##茎叶图
+boxplot(price)
+plot(ecdf(price))
+x<- min(price):max(price)
+lines(x,pnorm(x,mean(price),sd(price)),col='red')
+group<- read.csv('09-11股价.csv')
+group<- na.omit(group)
+summary(group)
+options(digits=3)#数字只显示三位
+var(group)
+cor(group)
+attach(group)
+plot(Price10~Price09,xlab='price of 2009')
+lines(lowess(Price09,Price10),col='blue',lwd=2)
+library(MASS)
+a<-kde2d(Price09,Price10)
+contour(a,col='blue')
+plot(group,main='star')
+matplot(group,type='l')
+legend(0,35,legend=2009:2011,pch='—',cex=0.6,col=1:3)
+boxplot(group,cex.axis=0.6)
+score<- read.table('score.txt',T)
+stars(score)
+stars(score,full=F,draw.segments=T,key.loc=c(5,0.5),mar=c(2,0,0,0))
+##编写折线图函数
+outline<- function(x){
+   if(is.data.frame(x)==TRUE)
+    x=as.matrix(x)
+  m=nrow(x);n=ncol(x)
+  plot(c(1,n),c(min(x),max(x)),type='n',main='the outline graph of data')
+   for(i in 1:m){
+     lines(x[i,],col=i)
+  }
+}
+outline(score)
+n<- ncol(score)
+n
+score=as.matrix(score)
+plot(c(1,n),c(min(score),max(score)))
+lines(score[6,],col=2)
