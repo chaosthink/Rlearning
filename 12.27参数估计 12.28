@@ -1,0 +1,127 @@
+#泊松分布的参数的矩估计即为样本均值
+num<- c(rep(0:5,c(1532,581,179,41,10,4)))
+num2<-c(1532,581,179,41,10,4)
+lambda<- mean(num);lambda
+k<-0:5
+ppois<- dpois(k,lambda)#生成泊松分布的值，根据矩估计
+plot(ppois,type='l')
+poisnum<- ppois*length(num)
+poisnum #根据分布生成损失数
+plot(k,poisnum,ylim=c(0,1600))
+lines(num2)
+samplenum<- as.vector(table(num))
+samplenum
+points(k,samplenum,type='p',col=2)
+legend(4,1000,legend=c('num','poisson'),col=1:2,pch='o')
+####计算二阶矩估计
+install.packages('rootSolve')
+library(rootSolve)
+x<- c(4,5,4,3,9,9,5,7,9,8,0,3,8,0,8,7,2,1,1,2)
+m1<- mean(x)
+m2<- var(x)
+model<- function(x,m1,m2){
+    c(f1=x[1]+x[2]-2*m1,f2=(x[2]-x[1])^2/12-m2)
+ }
+library(rootSolve)
+multiroot(f=model,start=c(0,10),m1=m1,m2=m2)
+#求解结果：m1-sqrt(3*m2) ; m1+qurt(3*m2)  m1 均值 m2 方差
+####
+######
+########极大似然估计
+#optimize 单参数分布的极大似然估计
+#optim 计算多参数分布的极大似然估计
+#nlm 计算非线性函数的最小值
+#nlminb  非线性最小化函数
+library(MASS)
+head(geyser,5)
+attach(geyser)
+hist(waiting,freq=F)
+ll<- function(para)
+ {
+   f1=dnorm(waiting,para[2],para[3])
+   f2=dnorm(waiting,para[4],para[5])
+   f=para[1]*f1+(1-para[1])*f2
+   ll=sum(log(f))
+   return(-ll)
+}
+geyser.est<- nlminb(c(0.5,50,10,80,10),ll,lower=c(0.0001,-Inf,0.0001,-Inf,0.0001),upper=c(0.999,Inf,Inf,Inf,Inf))
+geyser.est$par
+
+######
+#######求置信区间：方差已知 方差未知两种情况 #估计均值的置信区间
+#方差已知，需自己编程
+conf.int<- function(x,sigma,alpha){
+  mean=mean(x)
+  n=length(x)
+  z=qnorm(1-alpha/2,mean=0,sd=1,lower.tail=T)
+  x1=mean-sigma*z/sqrt(n)
+  x2=mean+sigma*z/sqrt(n)
+  c(x1,x2)
+ }
+##sigma方差  alpha 1-置信度 z标准正态分布的分位点
+##直接调用BSDA包的z.test
+install.packages('BSDA')
+library(BSDA)
+set.seed(1111)
+x<- rnorm(20,10,2)
+conf.int(x,2,0.05)
+yy<-z.test(x,sigma.x=2)
+###方差未知的情况下，以样本方差代替总体方差，可直接调用T检验
+t.test(x)
+t.test(x)$conf.int
+############
+###############方差的置信区间
+var.conf.int<- function(x,mu=Inf,alpha){
+  n=length(x)
+ if(mu<Inf){
+  s2=sum((x-mu)^2)/n
+ df=n
+  }
+ else{
+  s2=var(x)
+ df=n-1
+ }
+ c(df*s2/qchisq(1-alpha/2,df),df*s2/qchisq(alpha/2,df))
+}
+##这里的if else表达的是均值已知和未知的情况，已知的时候df=n，未知的时候df=（n-1）
+var.conf.int(x,alpha=0.05)
+
+###
+#####均值差的区间估计
+twosample.ci<- function(x,y,alpha,sigma1,sigma2){
+  n1=length(x); n2=length(y)
+ xbar=mean(x)-mean(y)
+ z=qnorm(1-alpha/2)*sqrt(sigma1^2/n1+sigma2^2/n2)
+ c(xbar-z,xbar+z)
+}
+##实证
+sales<- read.table('sales.txt',T)
+head(sales)
+attach(sales)
+
+par(mfrow=c(1,2))#图表换成一行两列
+hist(prior);hist(post)
+sd(prior);sd(post)
+twosample.ci(post,prior,alpha=0.05,8,13)
+z.test(post,prior,sigma.x=8,sigma.y=13)
+####
+######两个总体方差未知但相等
+zjixie<- function(x,y,alpha,sigma){
+   n1=length(x);n2=length(y)
+   t=qt(1-alpha/2,df=n2)*(n1+n2-2)*sqrt(1/n1+1/n2)*sigma
+   tbar=mean(x)-mean(y)
+   c(tbar-t,tbar+t)
+ }
+zjixie(prior,post,0.05,13)###失败
+t.test(post,prior,var.equal=T)
+###两总体方差未知且不等
+twosample.ci2<-function(x,y,alpha){
+  n1=length(x);n2=length(y)
+  xbar=mean(x)-mean(y)
+  S1=var(x);S2=var(y)
+  nu=(S1/n1+S2/n2)^2/(S1^2/n1^2/(n1-1)+S2^2/n2^2/(n2-1))
+  z=qt(1-alpha/2,nu)*sqrt(S1/n1+S2/n2)
+  c(xbar-z,xbar+z)
+}
+#最为常见的情况
+twosample.ci2(post,prior,0.05)
