@@ -1,0 +1,124 @@
+
+#检测环境
+
+library(devtools)
+has_devel()#诊断环境
+#利用has_devel函数检测当前的环境是否有问题，比如gcc，可能因为我也忘记了自己之前之前配置过什么，反正总之就是没问题哈哈，是的只要返回值是TRUE就没问题。
+
+#create("H:/WorkingSpace/RWorkingSpace/BigFaceTools")#创建包的文件夹，文件夹名就是包的名字，比如我的就是大脸工具，囧……
+#setwd("H:/WorkingSpace/RWorkingSpace/BigFaceTools")#工作空间转移，这样比较方便
+
+   # 值得一提的是，除了以上命令外，也可以通过Rstudio中的file-New Project-New Directory-R Package来新建R包的项目。
+    #来看看这个项目的结构：
+   # 1.一个R的文件夹，用来存放.r脚本，比如你的常用function，放在这里即可；
+  #  2.一个基础的无后缀的DESCRIPTION文本文件，可以用任意文本编辑器打开，是对于你将创建的R包的基础介绍；
+   # 3.NAMESPACE文件，可以先不用管它；
+   # 总之，一个package的框架基本就有了，剩下的就是往里面填东西。
+    
+
+#添加.r文件
+
+  #  首先往包文件目录下的R文件夹内添加自己编写的R脚本，如果此时你没有合适的脚本那么随便写个function也是可以的：
+	
+print_intro=function(){
+  print("Laoliu is the most handsome man in this package! LOL...")
+  }
+
+	
+#' read all worksheet in one excel file to return a data.frame by using readxl
+#' @param file,should be a file address str
+#' @param sheet_name,if the sheetname be one column of the result
+#' @export
+read_all_xlsx_sheets=function(file,sheet_name=TRUE){
+  for(pkg in c("plyr","dplyr","magrittr","readxl")){
+    if(!requireNamespace(pkg,quietly=TRUE)){
+      stop(paste("The ",pkg," package needed for this function to work. Please install it.",sep=""),
+           call. = FALSE)
+    }
+  }
+  library(plyr,warn.conflicts=F)
+  library(dplyr,warn.conflicts=F)
+  library(readxl,warn.conflicts=F)
+   
+  tables=readxl::excel_sheets(file)
+  if(sheet_name){
+    res=plyr::ldply(tables,function(x)dplyr::mutate(readxl::read_excel(file,sheet=x),sheet_name=x))
+  }else{
+    res=plyr::ldply(tables,function(x)readxl::read_excel(file,sheet=x))
+  }
+  return(res)
+}
+
+  #  对各个参数注释后，把代码的.r文件放入BigFaceTools/R文件夹内,保存。
+    
+
+#编辑DESCRIPTION
+
+
+file.edit("DESCRIPTION")#编写描述文件
+
+ 
+
+#Authors@R的格式必须要用person函数来写,其他的因为无上传打算，随意就好。
+
+#关于以上，因为在.r文件中引用了三个包，故把这三个包写入imports中，在后期加载时BigFaceTools自动加载这三个包。
+
+	
+use_package("plyr")
+use_package("dplyr")
+use_package("readxl")
+
+
+load_all()
+
+    每一次运行load_all()，都会载入BigFaceTools/R内最新的所有.r文件内容。
+
+	
+read_all_xlsx_sheets("iris_test.xlsx")#测试
+
+  #如果没什么意外（其实会有，可以发现我载入了几个新的包，plyr、dplyr、magrittr，如果想用以上代码测试，建议安装），测试当然会通过。
+
+
+document()
+
+　 #   接着用document()将BigFaceTools/R内的所有.r文件生成为BigFaceTools/man文件夹内的.Rd文件。
+	
+build()#打包
+
+  #  打包成一个压缩文件，生成BigFaceTools_0.0.0.tar.gz，用于安装，这个文件会生成在BigFaceTools文件夹的上一级栏目。
+    
+ 
+	
+install(".")
+
+ #   安装,大功告成。
+  #  重启Rstudio，调用一下吧^0^
+
+library(BigFaceTools)
+test_file=system.file("iris_test.xlsx",package="BigFaceTools")#测试文件
+read_all_excel_sheets(test_file)
+
+ 
+	
+library(devtools)
+has_devel()
+create("H:/WorkingSpace/RWorkingSpace/BigFaceTools")
+setwd("H:/WorkingSpace/RWorkingSpace/BigFaceTools")
+file.edit("./R/BigFaceTools_1.r")#.r文件
+file.edit('DESCRIPTION')#编写描述文件
+use_package("plyr")
+use_package("dplyr")
+use_package("readxl")
+ 
+load_all()#载入R文件夹中的所有.r文件
+read_all_xlsx_sheets("../iris_test.xlsx")#测试
+document()#在man文件夹中生成对应的.Rd 文件
+ 
+check()#看看有没有错误
+build()#打包
+ 
+install(pkg=".")#安装
+##重启后再进来试试
+library(BigFaceTools)
+test_file="iris_test.xlsx"#测试文件
+read_all_xlsx_sheets(test_file)
