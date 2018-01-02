@@ -1,0 +1,60 @@
+##在方差已知的情况下的Z检验
+z.test<- function(x,mu,sigma,alternative='two.sided'){
+   n=length(x)
+   result=list()
+   mean=mean(x)
+   z=(mean-mu)/(sigma/sqrt(n))
+   options(digits=4)
+   result$mean=mean
+   result$z=z
+   result$p=2*pnorm(abs(z),lower.tail=F)
+   ##若是单侧检验，重新计算P值
+   if(alternative=="greater") 
+    result$p=pnorm(z,lower.tail=F)
+   else if(alternative=='less')
+      result$p=pnorm(z)
+   result
+}
+###
+bj<- c(102.5,102.4,102.0,101.8,101.8,102.1,102.3,102.5,102.6,102.8,103.4,104.2)
+library(BSDA)
+z.test(bj,102.4,0.67,alternative='two.sided')
+#方差未知时，调用t检验
+t.test(x=bj,mu=102.4)
+####
+######
+#######样本方差的卡方检验
+chisq.var.test<- function(x,var,mu=Inf,alternative='two.sided'){
+    n=length(x)
+    df=n-1#均值未知时的自由度
+    v=var(x)#均值未知时的方差估计值
+    #总体均值已知的情况
+    if(mu<Inf){df=n;v=sum((x-mu)^2)/n}
+    chi2=df*v/var#卡方统计量
+    options(digits=4)
+    result=list()#产生存放结果的列表
+    result$df=df;result$var=v;result$chi2=chi2;
+    result$p=2*min(pchisq(chi2,df),pchisq(chi2,df,lower.tail=F))
+    ###单侧检验，重新计算P值
+    if(alternative=='greater')  result$p=pchisq(chi2,df,lower.tail=F)
+    else if(alternative=='less')  result$p=pchisq(chi2,df)
+    result
+  }
+#######双正态样本的检验
+z.test2<- function(x,y,simga1,simga2,alternative='two.sided'){
+   n1=length(x);n2=length(y)
+   result=list()
+   mean=mean(x)-mean(y)
+   z=mean/sqrt(simga1^2/n1+simga2^2/n2)#计算z统计量的值1
+   options(digits=4)              
+   result$mean=mean;result$z=z             #将均值、z值存进结果
+   result$p=2*pnorm(abs(z),lower.tail=F)  #根据z计算p值
+   #若是单侧检验，重新计算P值
+   if(alternative=='greater')  result$p=pnorm(z)
+   else if(alternative=='less')   result$p=pnorm(z,lower.tail=F) 
+   result
+}
+#####实例验证，百货公司数据
+sales<- read.table('sales.txt',T)
+attach(sales)
+z.test2(prior,post,8,12,alternative='less')
