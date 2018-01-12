@@ -58,3 +58,37 @@ z.test2<- function(x,y,simga1,simga2,alternative='two.sided'){
 sales<- read.table('sales.txt',T)
 attach(sales)
 z.test2(prior,post,8,12,alternative='less')
+#######1/12
+########方差未知但相等的情况
+t.test(prior,post,var.equal=F,alternative="less")
+
+###成对T检验，常用与生物检验  在t.test中加入paired=T即可
+x<- c(117,127,141,107,110,114,115,138,127,122)
+y<- c(113,108,120,107,104,98,102,132,120,114)
+t.test(x,y,paired=T,alternative="greater")
+#程序包DAAG中的onesamp函数专门用于成对样本的t检验
+install.packages('DAAG')
+library(DAAG)
+onesamp(sales,x='prior',y='post')
+##########
+###########两总体方差的检验  使用F检验
+var.test(prior,post)
+####
+######比率估计：  检验统计量是否服从参数为p的二项分布
+binom.test(214,2000,p=0.1)
+##二项分布检验适用于样本量较小的情况，样本量足够大的时候可以作为正态分布检验
+prop.test(214,2000,p=0.1)
+###
+####如果总体的分布不确定时，不能使用参数检验，因此必须使用非参数检验
+#非参检验的优点：条件宽松，适用范围广；方法灵活，用途广泛，可用于定序数据；计算简单
+####北京住宅价格是否服从正态分布
+bj<- c(102.5,102.4,102.0,101.8,101.8,102.1,102.3,102.5,102.6,102.8,103.4,104.2)
+hist(bj)
+a<- table(cut(bj,breaks=c(101.4,101.9,102.4,102.9,104.5)))##把数据分为几个区间
+a
+br<- c(101.5,102,102.5,103,104.5)
+p<- pnorm(br,mean(bj),sd(bj))
+p#计算落到各个区域的概率
+p<- c(p[1],p[2]-p[1],p[3]-p[2],1-p[3])
+options(digits=2)
+chisq.test(a,p=p)
