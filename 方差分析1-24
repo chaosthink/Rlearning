@@ -1,0 +1,51 @@
+
+######方差分析
+##方差分析三个假设：不相关、正态性、同方差
+#正态性检验：w检验
+x1<- c(103,101,98,110,105,100,106)
+x2<-c(113,107,108,116,114,110,115)
+x3<- c(82,92,84,86,84,90,88)
+shapiro.test(x1)
+shapiro.test(x2)
+shapiro.test(x3)
+#大于0.05， 不能拒绝原假设
+#方差齐性检验：巴里特检验
+#bartlett.test
+x<- c(x1,x2,x3)
+account<- data.frame(x,A=factor(rep(1:3,each=7)))
+bartlett.test(x~A,data=account)
+a.aov<- aov(x~A,data=account)
+a.aov
+####levene检验，方差齐性检验
+install.packages('car')
+library(car)
+levene.test(account$x,account$A)
+####非参数检验——检验三所不同 大学 的雇员在管理岗位上表现是否有不同
+data<- data.frame(x=c(25,70,60,85,95,90,80,60,20,30,15,40,35,50,70,60,80,90,70,75),g=factor(rep(1:3,c(7,6,7))))
+kruskal.test(x~g,data=data)
+###
+####双方差检验
+x<- c(20,12,20,10,14,22,10,20,12,6,24,14,18,18,10,16,4,8,6,18,26,22,16,20,10)
+sales<- data.frame(x,A=gl(5,5),B=gl(5,1,25))
+bartlett.test(x~A,data=sales)#方差齐性检验
+sales.aov<- aov(x~A+B,data=sales)
+summary(sales.aov)
+#######
+#########有交叉影响的双因素方差分析 ---gl是生成因子数据的意思
+time<- c(25,24,27,25,25,19,20,23,22,21,29,28,31,28,30,20,17,22,21,17,18,17,13,16,12,22,18,24,21,22)
+traffic<- data.frame(time,A=gl(2,15,30),B=gl(3,5,30,labels=c('I','II','III')))
+bartlett.test(time~A,data=traffic)
+op<- par(mfow=c(1,2))
+plot(time~A+B,data=traffic)
+#####interaction.plot交互效应画图
+attach(traffic)
+interaction.plot(A,B,time,legend=F)
+interaction.plot(B,A,time,legend=F)
+traf.aov<-aov(time~A*B,data=traffic)
+summary(traf.aov)
+#看A :B看出，无交互效应影响
+
+
+
+
+
