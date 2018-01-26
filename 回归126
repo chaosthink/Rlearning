@@ -1,0 +1,35 @@
+######
+#######
+#########回归分析
+#村庄卡拉马调查案例 161个儿童
+age<- 18:29
+age
+height<- c(76.1,77,78.1,78.2,78.8,79.7,79.9,81.1,81.2,81.8,82.8,83.5)
+plot(age,height)
+lm.reg<- lm(formula=height~age)
+summary(lm.reg)
+cor(height,age)#相关系数
+abline(lm.reg)##直接加入拟合曲线
+lm.res<- residuals(lm.reg)#提取残差
+plot(lm.res)
+par(mfrow=c(2,2))
+plot(lm.reg)
+######进行预测
+age.pre<- data.frame(age=c(28,29,30))####构造要预测的y
+h.pre<- predict(lm.reg,age.pre,interval='prediction',level=.95)#代入模型进行预测
+h.pre
+#####多元回归
+#多元无法判断所有自变量是否显著，因此需要使用t检验
+####y~x+z  y~x+z+x:z探究交互作用
+##计量经济模型：三个产业的生产总值，人口数，消费品零售总额，受灾面积
+revenue<- read.table('revenue.txt',header=T)
+lm.reg<- lm(y~x1+x2+x3+x4+x5+x6,data=revenue)
+summary(lm.reg)
+#模型提取 coef()系数估计 resid()残差 fitted()拟合值向量 AIC（）BIC（）
+fxx<- fitted(lm.reg)
+##update函数可以修改变量
+lm.reg2<- update(lm.reg,.~.-x1-x2)
+summary(lm.reg2)
+###逐步回归 step 使用AIC准则判断
+lm.step<- step(lm.reg)
+
