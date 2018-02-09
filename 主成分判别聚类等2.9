@@ -1,0 +1,141 @@
+#######主成分分析
+#原理：在信息丢失最少的原则下，将多个指标组合成新的指标
+#princomp
+agri<- read.table('agriculture.txt',header=T)
+head(agri)
+agri<- agri[,-1]
+agri.pr<- princomp(agri,cor=T)
+summary(agri.pr,loadings=T)
+#cumulative proprotion 累计方差贡献率
+screeplot(agri.pr,type='line',main='碎石图')
+locator(5,'p',col='blue')###交互式绘图
+biplot(agri.pr)#主成分散点图
+##案例：各地区农村居民平均每人食物消费量
+food<- read.table('food.txt',header=T)
+food<- food[,-1]
+install.packages('labdsv')
+library(labdsv)
+food.pr<- pca(food,dim=4,cor=T)
+summary(food.pr)
+op<- par(mfrow=c(1,2))
+varplot.pca(food.pr)
+####
+######因子分析
+####自编因子分析函数
+factor.analysis<- function(x,m){
+    p=nrow(x);x.diag=diag(x);sum.rank=sum(x.diag)
+   rowname=paste('X',1:p,sep='')#设置行名、列名
+   colname=paste('Factor',1:m,sep='')
+   #构造因子载荷矩阵A，初值设为0
+   A=matrix(1,nrow=p,ncol=m,dimnames=list(rowname,colname))
+   eig=eigen(x) #eig包含 两个元素  values为特征根 vectors为特征向量
+  for (i in 1:m)
+    A[,i]=sqrt(eig$values[i])*eig$vectors[,i] #填充矩阵A的值
+   var.A=diag(A%*%t(A))#公因子的方差
+     rowname1=c('ss loadings','proportionvar','cumulative var')
+    #构造输出结果的矩阵，初值设为0
+     result=matrix(0,nrow=3,ncol=m,dimnames=list(rowname1,colname))
+     for(i in 1:m){
+       result[1,i]=sum(A[,i]^2) #计算各因子的方差（对变量的贡献）
+       result[2,i]=result[1,i]/sum.rank #计算方差贡献率
+       result[3,i]=sum(result[1,1:i])/sum.rank #累计方差贡献率
+    }
+  method=c('principal component method')
+    #输出计算结果
+  list(method=method,loadings=A,var=cbind(common=var.A,specific=x.diag-var.A),result=result)
+  }
+####案例银行财务指标
+bank<- read.table('bank.txt',header=T)
+bank<- bank[,-1]
+r=cor(bank)
+options(digits=3)
+factor.analysis(r,5)
+###
+######
+########相关分析与对应分析
+######
+###
+post<- read.table('post.txt',header=T)
+post<- post[,-1]
+post<- scale(post)
+ca<- cancor(post[,1:4],post[,5:8])
+ca
+ch<- data.frame(A=c(47,22,10),B=c(31,32,11),C=c(2,21,25),D=c(1,10,20))
+rownames(ch)<- c('pure-chinese','semi-chinese','pure-english')
+library(MASS)
+ch
+ch.ca<- corresp(ch,nf=2)
+ch.ca
+biplot(ch.ca)
+########增强包ca
+#####ca  mjca 对应分析 绘图plot plot3d.ca plot3d.mjca
+brand<- data.frame(low=c(2,49,4,4,15,1),medium=c(7,7,5,49,2,7),high=c(16,3,23,5,5,14))
+rownames(brand)=c('A','B','C','D','E','F')
+install.packages('ca')
+library(ca)
+brand.ca<- ca(brand)
+brand.ca
+plot(brand.ca)
+#####
+#######
+########判别分析和聚类分析
+#######
+#####距离判别法
+b<- read.table('bankruptcy.txt',header=T)
+mu<- colMeans(b)#对矩阵b的列求均值 ，直接得到各指标的均值
+Sx<- cov(b)
+distance<- mahalanobis(b,mu,Sx)
+distance
+install.packages('WMDB')
+library(WMDB)
+G<- c(rep(1,17),rep(2,21))
+g<- as.factor(G)
+wmd(b,G)
+#########fisher判别法
+#原理 组间平方和越大越好，，组内平方和越小越好
+b<- read.table('bankruptcy.txt',header=T)
+G=c(rep(1,17),rep(2,21))
+g<- as.factor(G)  
+b$class=G  #将因子向量G存入数据库B中
+attach(b)
+names(b)
+library(MASS)
+b.lda<- lda(class~X1+X2+X3+X4)
+b.lda
+class.pre<- predict(b.lda)$class  ##选择对class进行预测
+table(class.pre,class)
+##
+chisq.test(class,class.pre)
+#P值远小于0.05，说明判断较准确
+newdata<- data.frame(X1=c(0.04,-0.06,0.07,-0.13,0.15,0.16,0.29,0.54),
+      X2=c(0.01,-0.06,-0.01,-0.14,0.06,0.05,0.06,0.11),
+      X3=c(1.5,1.37,1.37,1.42,2.23,2.31,1.84,2.33),
+      X4=c(0.71,0.4,0.34,0.44,0.56,0.2,0.38,0.48))
+predict(b.lda,newdata=newdata)
+####
+######贝叶斯判别
+#以先验概率判断后验概率 
+#程序包WMDB中的函数dbayes用于实现贝叶斯判别
+#dbayes（TrnX，TrnG，p=rep（1，length（levels（TrnG））），TstX=NULL，var.equal=F）
+#TrnX是训练样品的矩阵或数据框，TrnG是分类器，p是指定先验概率的向量
+####案例：破产模型贝叶斯判别
+library(WMDB)
+dbayes(b,G)
+###
+######
+########聚类分析
+####聚类分析的分类：对指标的分类，也可以对样本进行分类
+#对变量进行聚类成为R型聚类，对观测值进行聚类成为Q型聚类
+#euclidean 欧式距离
+#manhattan 绝对值距离
+#maximum 切比雪夫距离
+#minkowski 闵可夫斯基距离
+#canberra  兰氏距离
+#binary  定性样本距离
+# 离差平方和法ward，最短距离法single，最长距离法complete（R默认），mcquitty相似分析法，中间距离法median，重心法centroid
+drink<- read.table('drink.txt',header=T)
+drink=drink[,-1]
+d<- dist(drink)
+hc1<- hclust(d,method='ward')#离差平方和法
+hc2<- hclust(d,method='single')# 最短距离法
+hc3<- hclust(d,method='complete')#最长距离法
