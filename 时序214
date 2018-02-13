@@ -1,0 +1,26 @@
+####
+######
+#######时序
+######
+#####
+###
+##
+data<- read.table('M1.txt',header=T)
+m<- ts(data$M1,frequency=12,start=c(2002,1))
+m
+plot.ts(m)
+install.packages('TTR')
+library(TTR)
+m.sma3<- SMA(m,n=3)
+plot(m.sma3)
+lines(m,col=2)
+m.sma55<- SMA(m,n=5)
+###分解季节趋势
+data<- c(362,385,432,341,382,409,498,387,
+473,513,582,474,544,582,681,557
+,628,707,773,592,627,725,854,661)
+sales<- ts(data,frequency=4,start=c(2004,1))
+plot.ts(sales)
+comp<- decompose(sales)
+plot(comp)
+
