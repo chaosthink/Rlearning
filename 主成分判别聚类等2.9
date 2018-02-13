@@ -139,3 +139,19 @@ d<- dist(drink)
 hc1<- hclust(d,method='ward')#离差平方和法
 hc2<- hclust(d,method='single')# 最短距离法
 hc3<- hclust(d,method='complete')#最长距离法
+hc4<- hclust(d,method='median') #中间距离法
+opar<- par(mfrow=c(2,2)) #分割绘图区域
+plot(hc1,hang=-1);plot(hc2,hang=-1);plot(hc3,hang=-1);plot(hc4,hang=-1)
+par(opar)
+cutree(hc1,4)  #剪枝分类
+#更换谱系图类型
+drink.hc<- as.dendrogram(hc1)
+par(mfrow=c(1,2))
+plot(drink.hc,type='triangle',nodePar=list(pch=c(1,NA),lab.cex=0.8))
+plot(drink.hc,nodePar=list(pch=2:1,cex=0.4*2:1,col=2:3),horiz=T)
+###城市案例
+dat<- read.table('real estate.txt',header=T)
+dat=dat[,-1]
+d=dist(dat)
+hc<- hclust(d,method='ward.D')
+plot(hc,hang=-1)
