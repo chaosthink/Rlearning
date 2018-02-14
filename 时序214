@@ -23,4 +23,4 @@ sales<- ts(data,frequency=4,start=c(2004,1))
 plot.ts(sales)
 comp<- decompose(sales)
 plot(comp)
-
+###指数平滑data<- scan('http://robjhyndman.com/tsdldata/hurst/precipl.dat',skip=1)rain<- ts(data,start=1813)plot.ts(rain)rain.pre<- HoltWinters(rain,beta=F,gamma=F)plot(rain.pre)library(forecast)rain.pre2<- forecast.HoltWinters(rain.pre,h=10)plot.forecast(rain.pre2,col=2)#######残差白噪声检验#LB检验  Q检验for(i in 1:20){  Box.test(rain.pre2$residuals,lag=i,type='Ljung-Box') }##holt 指数平滑 适用于有趋势的数据data<- read.table('M1.txt',header=T)m<- ts(data$M1,frequency=12,start=c(2002,1))m.pre<- HoltWinters(m,gamma=F)plot(m.pre)m.pre2<- forecast.HoltWinters(m.pre,h=20)plot.forecast(m.pre)####arima 建模忽略，过程比较熟悉#########实例data<- read.csv('Dalyr.csv',header=T)code<- unique(data$Stkcd)n=length(code)Dalyyr<- matrix(0,220,n)for(i in 1:n){Dalyyr[,i]=data$Dretnd[which(data$Stkcd==code[i])]}r.cov<- cov(Dalyyr)head(Dalyyr)r.mean<- apply(Dalyyr,2,mean)plot(r.mean,pch=8,col=2)
