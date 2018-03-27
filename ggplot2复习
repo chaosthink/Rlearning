@@ -1,0 +1,111 @@
+####ggplot2包学习
+#推荐书 the grammar of graphics
+library(ggplot2)
+
+#qplot
+head(diamonds)
+options(max.print=99999)
+
+qplot(carat,price,data=diamonds)
+qplot(log(carat),log(price),data=diamonds)
+qplot(carat,x*y*z,data=diamonds)
+
+#装饰属性
+set.seed(1410)
+dsmall<- diamonds[sample(nrow(diamonds),100),]
+qplot(carat,price,data=dsmall,color=color)
+qplot(carat,price,data=dsmall,shape=cut)
+qplot(carat,price,data=dsmall,shape=cut,color=color)
+
+qplot(carat,price,data=diamons,alpha=I(1/10)) #alpha 透明度
+qplot(carat,price,data=dsmall,geom=c('point','smooth'))  #画点图和曲线图
+qplot(carat,price,data=dsmall,geom=c('point','smooth'),span=0.2) #改变项式
+
+qplot(color,price/carat,data=diamonds,geom='boxplot')
+
+qplot(color,price/carat,data=diamonds,geom='jitter')
+qplot(carat,data=diamonds,geo,='histogram')#直方图
+qplot(carat,data=diamonds,geom='histogram',color=color)
+
+qplot(carat,data=diamonds,geom='histogram',binwidth=1,xlim=c(0,3)) #柱子的粗细
+qplot(carat,data=diamonds,geom='histogram',fill=color,color=color)
+qplot(carat,data=diamonds,geom='density') #密度曲线
+qplot(carat,data=diamonds,geom='density',color=color)
+qplot(color,data=diamonds,geom='bar')
+qplot(carat,data=diamonds,facets=color~.,geom='histogram')
+
+##gplot
+####ggplot概念
+
+head(mpg)
+qplot(displ,hwy,data=mpg,color=factor(cyl))
+#装饰属性
+#点大小 位置 颜色
+#第一要素 从数据到装饰属性的映射
+#数据 →映射（位置，颜色）
+#第二要素 geom 几何对象
+#复杂统计图通过图层叠加实现
+#scaling 标价 把像素转化为图上可以实现的点
+#可以转化为极坐标系和球坐标系
+#coord 坐标系
+qplot(displ,hwy,data=mpg,facets=.~year)+geom_smooth()#按年份来分组
+
+#一层层画 1基础图层 2装饰属性映射  3统计变换4几何变换 5位置变换
+###ggplot
+p<- ggplot(diamonds,aes(carat,price,color=cut))
+#diamonds 定义数据集,会成为默认数据集, aes表示装饰属性开始了，映射到x（carat），y（price），颜色
+summary(p) #查看图形结构
+
+p<- ggplot(diamonds,aes(x=carat))
+p<- p+layer(
+geom='bar',
+stat='bin',
+position = "identity",
+stat_params=list(binwidth=2))
+###
+p<- p+
+geom_histogram(binwidth=2,fill='steelblue')
+p
+
+##几何参数开头 geom_  统计参数开头 stat_
+
+ggplot(msleep,aes(sleep_rem/sleep_total,awake))+geom_point()
+####sleep_rem / sleep_total 是x
+qplot(sleep_rem/sleep_total,awake,data=msleep)
+qplot(sleep_rem/sleep_total,awake,data=msleep)+geom_smooth()
+
+ggplot(msleep,aes(sleep_rem/sleep_total,awake))+geom_point()+
+geom_smooth()
+
+p<- ggplot(msleep,aes(sleep_rem/sleep_total,awake))
+p<- p+geom_point()+geom_smooth()
+summary(p)
+
+######
+p<- ggplot(mtcars,aes(mpg,wt,color=cyl))+geom_point()
+#数据集 mtcars  mpg是x wt是y 
+p+geom_smooth()
+###修改数据框的变量
+mtcars<- transform(mtcars,mpg=mpg^2)
+p%+%mtcars 
+#%+%表示将数据更换掉
+####新写法
+p<- ggplot(mtcars)
+p<- p+ aes(wt,hp)
+
+p+geom_point(aes(color=factor(cyl)))
+p+geom_point(aes(y=xxxx))
+#更换映射
+Oxboys
+####另一个aes ————group
+p<- ggplot(Oxboys,aes(age,height,group=Subject))+geom_line()
+p<- ggplot(Oxboys,aes(age,height,group=1))+geom_line()
+
+p<- ggplot(Oxboys,aes(age,height,group=Subject))+geom_line()
+p+ geom_smooth(aes(group=Subject),method='lm',se=F)
+p+geom_smooth(aes(group=1),method='lm',size=2)
+###选择拟合方式
+###覆盖缺省分组
+boysbox<- ggplot(Oxboys,aes(Occasion,height))+geom_boxplot()
+boysbox+geom_line(aes(group=Subject),color='blue')
+####画出箱线图，并加线
