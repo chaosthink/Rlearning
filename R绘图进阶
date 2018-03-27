@@ -1,0 +1,305 @@
+plot(cars$dist~cars$speed)
+
+plot(cars$dist~cars$speed,main='随便取个名字',xlab='x轴名',ylab='y轴名',xlim=c(0,30),ylim=c(0,140),xaxs='i',yaxs='i',col='red',pch=19)
+www.packtpub.com/r-graph-cookbook/book
+
+#画线图
+sales<- read.csv('dailysales.csv',header=T)
+attach(sales)
+plot(units~as.Date(date,'%d/%m/%y'),type='l') 
+
+barplot(sales$productA,names.arg=sales%city,col='black')
+
+#彩色柱状图
+barplot(as.matrix(sales[,2:4]),beside=T,legend=sales$City,col=heat.colors(5),border='white')
+
+#直方图
+hist((rnorm(1000))
+islands
+hist(islands)
+plot(density(rnorm(1000))) #密度函数
+#箱型图
+boxplot(metals,xlab='metals',ylab='atm')
+#热力图
+heatmap(as.matrix(mtcars),col=heat.colors(256),scale='column',margins=c(2,8))
+#莺尾花数据集
+iris
+pairs(iris[,1:4])
+#分割画板
+par(mfrow=c(2,3))
+plot(rnorm(100),col='blue',main='NO1')
+plot(rnorm(100),col='blue',main='NO2')
+plot(rnorm(100),col='green',main='NO3')
+plot(rnorm(100),col='black',main='NO4')
+plot(rnorm(100),col='blue',main='NO5')
+plot(rnorm(100),col='orange',main='NO6')
+install.packages('maps')
+library(maps)
+map()
+#画美国
+map('state',interior=F)
+map('state',boundary=F,col='red',add=T)
+
+#更复杂的地图包
+install.packages('sp')
+library(sp)
+load(url("http://gadm.org/data/rda/GBR_adm1.RDat"))
+spplot(gadm,'shape.Area')
+
+#保存
+png('scaterplot.png',res=600) #选择保存形势,res 像素
+plot(rnorm(1000))
+dev.off()
+#列出所有颜色名
+colors()
+palette() #查看调色板
+#设置调色板
+palette(c('red','blue','green','orange'))
+palette('default') #回复默认
+#十六进制表达颜色
+#通过rgb获取
+plot(rnorm(1000),col='#AC5500BB')
+rgb(0.5,0.5,.5,.5)
+#红色，绿色，蓝色，透明度
+#Rcolorbrewer 调色板控制
+install.packages('RColorBrewer')
+library(RColorBrewer)
+display.brewer.all() #显示所有调色板
+star<-brewer.pal(7,'YlOrRd')
+display.brewer.all(7,'YlOrRd')#打印所需颜色
+palette(star)
+palette()
+palette('default')
+#上面是使用rcolorbrewer的过程
+#使用rainbow（）
+barplot(as.matrix(sales[,2:4]),beside=T,legend=sales$city,col=rainbow(length(sales$city)))
+#类似的有 terrain.colors()
+
+#背景颜色的设置
+par(bg='gray')
+#只设置坐标轴的颜色
+plot(rnorm(1000),type='n')
+x<- par('usr') #usr是坐标区域四个角的坐标
+rect(x[1],x[2],x[3],x[4],col='lightgray')
+points(rnorm(1000))
+
+#坐标轴yanse 
+plot(rnorm(100),main='plot title',col.axis='blue',col.lab='red',col.main='darkblue')
+#将参数绑定在画板
+par(col.axis='black',col.lab='blue',col.main='black')
+
+#title 函数
+title('dddd',col.main='blue')
+title(xlab='dd',ylab='sales')
+
+#散点的样式 cex pch
+
+plot(rnorm(100),pch='*',cex=2)
+#pch 可以表示符号，可以用数字表达，cex代表尺寸
+
+#线的宽度
+lines(rain$newyork,lty=2,lwd=2)
+#lty 表示线性，lwd表示线的宽度 line style
+
+#设置坐标轴刻度
+plot(rnorm(100),xaxp=c(0,100,10))
+
+www.stat.auckland.ac.nz/~paul/RGraphics/rgraphics.html
+
+
+#xyplot 对散点分组
+library(lattice)
+xyplot(mpg~disp,data=mtcars,groups=cyl,auto.key=list(corner=c(1,1)))
+
+#ggplot2
+library(ggplot2)
+qplot(disp,mpg,data=mtcars,col=as.factor(cyl))
+qplot(disp,mpg,data=mtcars,shape=as.factor(cyl))#利用形状分组
+qplot(disp,mpg,data=mtcars,size=as.factor(cyl))#利用形状大小分组
+
+#用text 标识点
+plot(mpg~disp,data=mtcars)
+text(258,22,'hornet')
+#text(x,y,点名称）  #x,y都可以是列数据
+
+#误差条
+plot(mpg~disp,data=mtcars)
+arrows(x0=mtcars$disp,y0=mtcars$mpg*0.95,x1=mtcars$disp,y1=mtcats$mpg*1.05,angle=90,code=3,length=0.04,lwd=0.4)
+#指定箭头和角度
+#画回归直线
+plot(mtcars$mpg~mtcars$disp)
+lmfit<- lm(mtcars$mpg~mtcars$disp)
+ablines(lmfit)
+#非线性拟合曲线
+x<- -(1:100)/10
+y<- 100+10*exp(x/2)+rnorm(x)/10
+nlmod<- nls(y~Const+A*exp(B*x),trace=T)
+plot(x,y)
+lines(x,predict(nlmod),col='red')
+##局部加权回归平滑
+plot(cars,main='lowess')
+lines(lowess(cars),col='blue')
+lines(lowess(cars,f=0.3),col='orange')
+#三维散点图
+library(scatterplot3d)
+
+scatterplot3d(x=mtcars$wt,y=mtcars$disp,z=mtcars$mpg)
+
+#rggobi 包
+#www.ggobi.org/rggobi
+
+#qq图
+qqnorm(mtcars$mpg)
+qqline(mtcars$mpg)
+
+#画密度函数
+x<- rnorm(1000)
+plot(density(x))
+rug(x) #在x值上画小线，了解数据分布
+
+#rug其他用法
+rug(metals$cu)
+rug(metals$ba,side=2,col='reg') #一个低级画图函数用法
+
+#雾化
+
+smoothScatter(x,y)#描绘点的密集
+
+#线图
+rain<- read.csv('cityrain.csv')
+plot(rain$Tokyo,type='b',lwd=2,xaxt='n',ylim=c(0,300),
+col='black',xlab='month',ylab='rainfall',main='monthly rainfall')
+#xaxt='n',表示将x轴清空
+axis(1,at=1:length(rain$month),labels=rain$month) #补充上标签
+lines(rain$Berlin,col='red',type='b',lwd=2)
+lines(rain$NewYork,col='orange',type='b',lwd=2)
+lines(rain$London,col='blue',type='b',lwd=2)
+#补充上三根线
+legend('topright',lengend=c('Tokyo','Berlin','NewYork','London'),
+ltv=1,lwd=2,pch=21,col=c('black','red','orange','blue'),ncol=2,btyy='n',cex=0.8)
+ #添加图例
+
+#在图上加线
+abline(x=5) #即可
+abline(h=150,col='red',lty=2)
+
+#画底纹格子
+rain<- read.csv('cityrain.csv')
+plot(rain$tokyo,type='b',lwd=2,xaxt='n',ylim=c(0,300),col='black',xlab='Month',
+main='monthly)
+axis(1,at=1:length(rain$month),labels=rain$month)
+grid()  #加底纹的函数
+grid()
+grid(nx=NA,ny=8,lwd=1,lty=2,col='blue')#无x轴，8个y轴，颜色蓝色
+
+####shixu
+library(zoo)
+plot(zoo(sales$units,as.Date(sales$date)))
+#zoo可以直接转变时序数据
+
+#画股票数据
+install.packages('quantmod')
+install.packages('tseries')
+library(quantmod)
+library(tseries)
+
+#抓取股票数据并画图
+aapl<- get.hist.quote(instrument='aapl',quote=c('Cl','Vol')) #抓取股价
+goog<- get.hist.quote(instrument='goog',quote=c('Cl','Vol'))
+msft<- get.hist.quote(instrument='msft',quote=c('Cl','Vol'))
+plot(msft$Close,main='Stock price',ylim=c(0,800),col='red',type='l',lwd=0.5,
+pch=19,cex=0.6,xlab='Date',yalb='stockprice')
+lines(goog$Close,col='blue',lwd=0.5)
+lines(aapl$Close,col='gray',lwd=0.5)
+legend('top',horiz=T,legend=c('microsoft','google','apple'),
+col=c('red','blue','gray'),lty=1,bty='n')
+
+#quantmod包
+getSymbols('AAPL',src='yahoo')
+barChart(AAPL)
+candleChart(AAPL,theme='white')
+
+#案例su35
+####柱形图、直方图、饼图
+library(RColorBrewer)
+
+citysales<-  read.csv('citysales.csv')
+barplot(as.matrix(citysales[,2:4]),beside=T,legend.text=citysales$City,args.legend=list(bty='n',horiz=T),
+col=brewer.pal(5,'Set1'),border='white',ylim=c(0,100),ylab='sales',main='sales')
+box(bty='l')
+#beside=T 表示：不是堆积图
+#horiz =T 变成水平放置
+#space=5 更改组间距
+#在顶端显示数据 
+x<- barplot(...)
+y<- as.matrix(citysales[,2:4])#要显示的数据
+text(x,y+2,lebels=as.character(y))#y+2表示高度
+
+#点图
+install.packages('reshape')
+library(reshape)
+#melt函数
+sales<- melt(citysales) #变换成窄表
+sales$color[sales[,s]=='ProductA']<-'red'
+sales$color[sales[,s]=='ProductB']<-'blue'
+sales$color[sales[,s]=='ProductC']<-'violet'
+
+dotchart(sales[,3],labels=sales$city,groups=sales[,2],col=sales$color,pch=19)
+
+#直方图
+#基础
+air<- read.csv('airpollution.csv')
+hist(air$Nitrogen.Oxides,xlab='oxide')
+#prob=T,变成概率图
+#增加breaks ,表示精密读，breaks越大则柱子越小
+
+ star<- rnorm(1000)
+library(RColorBrewer)
+hist(star,col=brewer.pal(9,'Set1'))
+grid(nx=NA,ny=NULL,lty=1,lwd=1,col='gray')
+grid(nx=NULL,ny=NULL,lty=1,lwd=1,col='gray')
+#NULL是有线的意思，NA是没有的意思
+#加概率函数
+hist(star,prob=T,col=brewer.pal(9,'Set1'))
+lines(density(star,na.rm=T),col='red',lwd=2)
+
+##箱图 热力图
+air<- read.csv('airpollution.csv')
+boxplot(air,las=1)
+#las 更改坐标轴
+boxplot(air,boxwex=.2,las=1) #更改箱体大小
+boxplot(air,width=c(1,2)) #指定箱体的大小
+#分组箱线图
+metals<- read.csv('metals.csv',header=T)
+boxplot(Cu~Source,data=metals,main='star')
+#cu~source 以soucrce进行分组，cu的情况
+#cu~source*expt 交叉分组
+#varwidth=T,根据观测值的数量多少来表示箱体的宽窄
+#花式箱体 notch=T
+#排除离群值 outline=F
+#horizontal=T 转置
+#换一种风格
+boxplot(metals[,-1],border='white',col='black',boxwex=0.3,
+medlwd=3,whiskcel='black',staplecol='black',outcol='red',
+cex=0.3,outpch=19)
+grid(nx=NA,ny=NULL,col='gray',lty=(dashed')
+#medlwd 中线 whiskcel 中间的竖线 staplecol上下两条线
+#out 表示离群值，cex大小
+
+###热力图
+sales<- read.csv('sales.csv')
+rownames(sales)<- sales[,1]
+library(RColorBrewer)
+sales<-sales[,-1]
+data_matrix<- data.matrix(sales)
+pal<- brewer.pal(7,'Set1')
+breaks<- seq(3000,12000,1500)
+layout(matrix(data=c(1,2),nrow=1,ncol=2),widths=c(8,1),height=c(1,1)
+par(mar=c(5,10,4,2),oma=c(0.2,0.2,0.2,.2),mex=.5)
+image(x=1:nrow(data_matrix),y=1:ncol(data_matrix),z=data_matrix,axes=F,xlab='Month',ylab='',col=pal[1:(length(breaks)-1)],
+breaks=breaks)
+axis(1,at=1:norw(data_matrix),label=rownames(data_matrix),col='whith',las=1)
+axis(2,at=1:ncol(data_matrix),labels=colnames(data_matrix),col='white',las=1)
+abline(h=c(1:ncol(data_matrix))+0.5,
+v=c(1:nrow(data_matrix))+0.5,col='whith',lwd=2,xpd=F)
+breaks2<- breaks[-length(breaks)]
