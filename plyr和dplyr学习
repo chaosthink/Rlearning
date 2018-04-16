@@ -1,0 +1,228 @@
+##学习plyr
+install.packages('plyr')
+library(plyr)
+#split-apply-combine概念
+#八大问题拆分成可以操作的小问题，再对小问题进行处理（apply）最后再把处理结果组合起来
+#把数据分类处理的意思
+#plyr包把庞大的数据结构拆分出多个片段，分别对各个片段应用函数，最后再组合起来
+a<- matrix(1:21,nrow=3,ncol=7)
+#传统方式
+b=0
+for(i in 1:7){
+ b[i]=mean(a[,i])}
+b<-apply(a,MARGIN=2,FUN=mean)
+##plyr包用法
+b<- aaply(a,.margins=2,.fun=mean)
+####
+####案例2
+deseasf<- function(value)rlm(value~month-1) #定义函数
+#循环版代码
+models<- as.list(rep(NA,24*24))#生成500多个空数据
+dim(models)<- c(24,24) #纬度变成24*24
+deseas<- array(NA,c(24,24,72)) #数据表，72个 24*24
+dimnames(deseas)<- dimnames(ozone)
+for(i in seq_len(24)){
+for(j in seq_len(24)){
+mod<- deseasf(ozone[i,j,])
+models[[i,j]]<- mod
+deseas[i,j,]<- resid(mod)
+}}
+#非循环版
+models<- apply(ozone,1:2,deseasf)
+resids_list<- lapply(models,resid)
+resids<- unlist(resids_list)
+dim(resids)<- c(72,24,24)
+deseas<-aperm(resids,c(2,3,1))
+dimnames(deseas)<- dimnames(ozone)
+#plyr包
+modes<- dlply(ozonedf,.(lat,long),deseasf_df)
+deseas<- ldply(models,resid)
+##案例后面再理解
+#学习资料
+#plyr主页 plyr.had.co.nz
+#plyr说明 www.r-statistics.com/tag/plyr
+####
+#####基本函数
+#主函数：
+#**ply()族,如：
+#aaply()  adply()  alply() daply() dlply()
+#辅助函数 m*ply() splat() each() colwise() failwith() arrang()
+#rename() count() match_df join()
+
+##**ply族 拆分数据，应用函数，再组合函数作用后的数据
+
+#           output：array     data frame  list  discarded 
+#input：        
+#     array        aaply      adply     alply   a_ply 
+#     data frame   daply      ddply      dlpy   d_ply
+#     list         laply      ldply     llply   l_ply
+####
+#####按输入分类
+a*ply(.data,.margins,.fun,...,.progress='none') 
+d*ply(.data,.variables,.fun,...,.progress='none')
+l*ply(.data,.fun,...,.progress='none')
+##
+##a*ply
+#data是要处理的数组
+#.margins是用哪种方式切割数据，1是行，2是列，c（1,2)切成单个元素，切割出来分别应用
+#.fun 指定一个函数处理切割后的数据
+#.grogress决定是否显示进度条
+###测试
+require(plyr)
+a<- matrix(1:21,nrow=3,7)
+aaply(a,1,mean) #按行计算
+aaply(a,2,mean) #按列计算
+aaply(a,c(1,2),mean) #按单个元素计算
+
+##
+aaply(a,1,mean,.progress='text') #用进度条显示
+aaply(a,1,mean,.progress='win') #用窗口显示
+
+#d*ply 按变量拆分 类是group by
+ names<- c('john','mary','alice','peter','roger','phyillis')
+age<- c(13,15,14,13,14,13)
+sex<- c('m','f','f','m','m','f')
+data<- data.frame(names,age,sex)
+
+amean<- function(data){
+
+  agemean<- mean(data[,2])
+  return(agemean)
+}
+ddply(data,.(age),.fun=amean)
+ddply(data,.(sex),.fun=amean)
+ddply(data,.(age,sex),.fun=amean) #按两个分组
+#先预设自写函数，然后带入到函数中
+
+###列表类型最简单
+a<- c(1,2,3,4,5,6,7,8,9)
+b<- c(1,2,4,5,6,7,4,5)
+c<- c(4,8,9,1,2,3,1)
+list<- list(a,b,c)
+llply(list,mean)
+###
+####m*ply
+data<- data.frame(n=c(10,100,50),mean=c(5,5,10),sd=c(1,2,1))
+data
+mlply(data,rnorm)
+##就是说，批量处理后面函数的参数，前面先定好数据，后面批量应用
+
+#####第二周过程，辅助函数
+
+#splat() 函数
+#简单案例
+head(mtcars,5)
+hp_per_cyl<- function(hp,cyl,...) hp/cyl
+splat(hp_per_cyl)(mtcars[1,]) #将后面的数据广播到前面的函数
+splat(hp_per_cyl)(mtcars) #跟m*ply类似 
+#用法相同  m*ply(a_matrix,FUN)  a*ply(a_matrix,1,splat(FUN))
+
+data<- data.frame(n=c(10,100,50),mean=c(5,5,10),sd=c(1,2,1))
+mlply(data,rnorm)
+adply(data,1,splat(rnorm)) 
+##
+####一个相反用法的函数 each()
+a<- c(1,2,3,4,1,5,6,7,8,4,2)
+each(min,max,mean)(a)  #后面的数据应用前面三个函数
+
+###colwise函数
+#把作用于数据库行向量的函数，转化为列向量的函数
+#跟d*ply一起用比较好用
+##衍生函数 catcolwise numcolwise 针对函数只在离散和数值型变量上的操作
+head(baseball,5)
+nmissing<- function(x) sum(is.na(x))
+nmissing(baseball)
+colwise(nmissing)(baseball)##原本作用于整个数据，可以变为作用于列数据
+##跟ddply搭配
+
+ddply(baseball,.(year),nmissing)#没有安列分类
+ddply(baseball,.(year),colwise(nmissing)) #输出每个列,按年度分类
+ddply(baseball,.(year),colwise(nmissing,.(sb,cs,so))#制定列输出
+ddply(baseball,.(year),colwise(nmissing,is.character))##只输出字符性的数
+ddply(baseball,.(year),colwise(nmissing,is.numeric))#只输出数值数据  等价于numcolwise
+ddply(baseball,.(year),colwise(nmissing,is.discrete))##应用于非结构数据  等价于catcolwise
+
+####failwith  修正一个函数，使得该函数错误时返回一个默认值
+ 
+f<- function(x)if(x==1)stop('error')else 1
+f(1)
+safef<- failwith(12345,f) #把错误改成12345
+safef(1)
+safef<- failwith(123456,f,quiet=T) #把原来的错误信息取消
+
+####arrange  排序函数
+head(arrange(mtcars,cyl,disp))
+cars<- cbind(vehicle=row.names(mtcars),mtcars) 
+arrange(cars,cyl,disp)
+arrange(cars,cyl,desc(disp) #降序
+
+###rename
+
+x<- c('a'=1,'b'=2,'c'=3,'d'='c')
+
+rename(x,replace=c('b'='c'))  #根据名字修改名字
+
+##count函数 数观测出现的数量
+
+a<- data.frame(names=c('a','b','c','d','a','a','b','b','c'),wt=c(1,1,2,3,1,2,2,2,5))
+
+count(a,vars='names')
+count(a,vars='names',wt_var='wt')  #给前面加一个权重
+
+longterm<- subset(count(baseball,'id'),freq>25)  #筛选
+
+###match_df()  从以一个数据框中提取与另一个数据框相同的行
+
+bb.longterm<- match_df(baseball,longterm,on='id')  #就是找出已选出的行的全部数据
+
+#join 联合数据框 join(x,y,by,type) xy数据框 by联合的变量  type 左联还是右联 
+x1<- c(1,2,3,4)
+x2<- c(5,6,7,8)
+x<-data.frame(x1,x2)
+
+y1<- x1*10
+y<- data.frame(y1,x2)
+y[,2]<- c(1,2,6,7)
+
+join(x,y,by='x2') #type inner 内链接-只输出匹配的上的情况 
+#join比merge快
+#https://www.cnblogs.com/awishfullyway/p/6485250.html
+
+######
+############博客内容学习 plyr dplyr 学习
+library(plyr)
+library(dplyr)
+library(Lahman) #使用包里的棒球比赛数据及Batting
+library(hflights) #使用包里的飞机航班数据集
+head(hflights)
+hflights_df<- tbl_df(hflights) ##将显示结果变得更友好，而不是一大堆数据
+head(hflights_df)
+
+####filter 筛选函数 类似与subset
+filter(hflights_df,Month==1,DayofMonth==1)  ##类似于sql的where
+hflights[hflightsMonth==1%hflightsDayofMonth==1,] #用自带函数实现
+filter(hflights_df,Month==1|Month==2) #同时检索month等于1和2的
+
+##arrange 排列函数
+arrange(hflights_df,DayofMonth,Month,Year)  #按顺序按三个循序排序
+#使用desc 使用降序
+arrange(hflights,desc(ArrDelay))
+
+#select()选择列 跟sql一样
+select(hflights_df,Year,Month,DayOfWeek)
+select(hflights_df,Year:DayOfWeek)  #选择数列
+select(hflights)df,(-Year:DayOfWeek)) #减去列
+
+#####mutate() 变形——对已有数据运算后添加为新列
+mutate(hflights_df,gain=ArrDelay-DepDelay,speed=Distance/AirTime*60)#添加新列
+
+###汇总 summaries 
+summarise(hflights_df,delay=mean(DepDelay,na.rm=T))
+
+###分组动作  group_by()
+planes<- group_by(hflights_df,TailNum) #按飞机编号分组
+delay<- summarise(planes,count=n(),dist=mean(Distance,na.rm=T),delay=mean(ArrDelay,na.rm=T))
+delayy<- filter(delay,count>20,dist<2000) #
+###
+####引入新操作符 %.% 可以对数据进行多步操作
+Batting%.% group_by(playerID) %.% summarise(total=sum(G)%.% arrange(desc(total))%.% head(5)
