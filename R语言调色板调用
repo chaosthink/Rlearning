@@ -1,0 +1,22 @@
+#调色板调用，容易忘，单独列出来
+#列出所有颜色名
+colors()
+palette() #查看调色板
+#设置调色板
+palette(c('red','blue','green','orange'))
+palette('default') #回复默认
+#十六进制表达颜色
+#通过rgb获取
+plot(rnorm(1000),col='#AC5500BB')
+rgb(0.5,0.5,.5,.5)
+#红色，绿色，蓝色，透明度
+#Rcolorbrewer 调色板控制
+install.packages('RColorBrewer')
+library(RColorBrewer)
+display.brewer.all() #显示所有调色板
+star<-brewer.pal(7,'YlOrRd')
+display.brewer.all(7,'YlOrRd')#打印所需颜色
+palette(star)
+palette()
+palette('default')
+#上面是使用rcolorbrewer的过程
