@@ -258,3 +258,4 @@ plot+scale_x_date(major='10 years')
 hgram<- qplot(rating,data=movies,vinwidth=1)
 previous_theme<- theme.set(theme_bw())#更换主题
 
+#http://bbs.pinggu.org/thread-4232954-1-1.html 四种散点图矩阵绘图方式
