@@ -1,0 +1,63 @@
+#学习字符串处理的函数
+
+#nchar  取字符数量的函数
+nchar('abcd')
+##数字符数量
+nchar(c('hello','world'))
+##会分个计算
+##可以拿来套循环
+#chartr 字符替换
+chartr(old='a',new='c',x='a123')
+chartr('b','c','b123')
+##
+######paste paste0
+paste('hello','world') #默认以空格隔开
+paste0('hello','world') ##默认没有空格
+paste('star',1:10,sep='-')
+paste('star',1:10,sep=',',collapse='-')  #合并完后再链接起来
+
+####substr 字符截取
+substr('hello',start=1,stop=2)
+star<- paste('hello',1:50,"") 
+substr(star,1,20)
+##substr 不能对数据框进行操作
+
+#strsplit 字符串分隔函数
+strsplit('avdg',split="")
+strsplit('a,d,d,e,r',",")
+strsplit('a，d，d，e，r',"，") #居然能识别中文
+strsplit('我叶良辰想neng死你',"")
+####使用apply族或者plyr的函数可以操作分隔列表或其他的格式
+
+#####gsub sub
+gsub(pattern='b',replacement='B',x='baby')
+#跟chartr类似
+gsub(pattern='b',replacement='B',x=c('abcb','boy','bob'))
+#可以批量替换
+
+######字符串匹配  grep 和grepl
+grep(pattern='boy',x=c('abcd','boy','baby'))
+#索引到位置
+grepl(pattern='boy',x=c('abcd','boy','bab'))
+###匹配一个布尔值
+####
+#######
+#########另一个博客
+
+###tolower toupper 变成大写或者变成小写
+DNA<- 'ADIAJGjaogjgo'
+tolower(DNA)
+toupper(DNA)
+
+####
+#####match  charmatch
+##匹配回来元素的位置
+match('xx',c('abc','xx','xxx','xx'))
+##好像只能匹配到第一个
+
+###
+######stringr的字符串处理
+install.packages('stringr')
+library(stringr)
+#https://blog.csdn.net/qq_34941023/article/details/51550158
+#先复习正则表达式
