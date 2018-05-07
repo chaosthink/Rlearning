@@ -1,0 +1,32 @@
+library(ggplot2);library(randomForest)
+setwd("F:/lxyR/1999二手车/")
+used_car<-read.csv("demo.csv",header = T,stringsAsFactors = F)
+#____________________________________________________________________________________________________
+ind<-sample(2,nrow(iris),replace = TRUE,prob = c(0.7,0.3))
+set.seed(16381)
+train<-used_car[ind==1,]  #训练集
+test<-used_car[ind==2,]   #测试集
+#dim(train)
+#used_car.rf<-randomForest(挂牌价~.,data=train,importance = T,ntree=350,proximity = T)  #建模
+#plot(used_car.rf)   #树的数目与预测误差的曲线图-确定400左右稳定最小
+#boxplot(treesize(used_car.rf))    #查看每一棵树的节点个数
+#hist(treesize(used_car.rf))    #查看每一棵树的节点个数
+#qplot(used_car.rf$predicted,train$挂牌价,gemo=c("point"),alpha=I(1/5))
+#barplot(used_car.rf$importance[,2])  #变量重要性条图
+#varImpPlot(used_car.rf,sort=T,n.var=20)    #变量重要性排名前20
+#____________________________________________________________________________________________________
+
+
+
+
+#____mtry值确定_____________________________________________________________________________________
+set.seed(16381)
+A<-NULL;B<-NULL
+for(i in 1:(ncol(train)-1)){
+  set.seed(16382)
+  rf<-randomForest(挂牌价~.,data=train,importance = T,mtry=i,ntree = 350)
+  tt<-rf$rsq[350];A<-rbind(A,tt)   #Mean of squared residuals
+  yy<-rf$mse[350];B<-rbind(B,yy)   #% Var explained
+  print(i)                         #打印循环次数，要不然不知道是不是卡了
+}
+#___mtry值确定___________________________________________________________________________
